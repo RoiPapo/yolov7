@@ -559,7 +559,7 @@ class ComputeLossOTA:
         super(ComputeLossOTA, self).__init__()
         device = next(model.parameters()).device  # get model device
         h = model.hyp  # hyperparameters
-
+        self.d = device
         # Define criteria
         BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h['cls_pw']], device=device))
         BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h['obj_pw']], device=device))
@@ -696,17 +696,17 @@ class ComputeLossOTA:
                 pxyxy = xywh2xyxy(pxywh)
                 pxyxys.append(pxyxy)
             
-            pxyxys = torch.cat(pxyxys, dim=0)
+            pxyxys = torch.cat(pxyxys, dim=0).to(self.d)
             if pxyxys.shape[0] == 0:
                 continue
-            p_obj = torch.cat(p_obj, dim=0)
-            p_cls = torch.cat(p_cls, dim=0)
-            from_which_layer = torch.cat(from_which_layer, dim=0)
-            all_b = torch.cat(all_b, dim=0)
-            all_a = torch.cat(all_a, dim=0)
-            all_gj = torch.cat(all_gj, dim=0)
-            all_gi = torch.cat(all_gi, dim=0)
-            all_anch = torch.cat(all_anch, dim=0)
+            p_obj = torch.cat(p_obj, dim=0).to(self.d)
+            p_cls = torch.cat(p_cls, dim=0).to(self.d)
+            from_which_layer = torch.cat(from_which_layer, dim=0).to(self.d)
+            all_b = torch.cat(all_b, dim=0).to(self.d)
+            all_a = torch.cat(all_a, dim=0).to(self.d)
+            all_gj = torch.cat(all_gj, dim=0).to(self.d)
+            all_gi = torch.cat(all_gi, dim=0).to(self.d)
+            all_anch = torch.cat(all_anch, dim=0).to(self.d)
         
             pair_wise_iou = box_iou(txyxy, pxyxys)
 

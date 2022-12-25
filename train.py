@@ -58,6 +58,7 @@ def train(hyp, opt, device, tb_writer=None):
 
     # Configure
     plots = not opt.evolve  # create plots
+
     cuda = device.type != 'cpu'
     init_seeds(2 + rank)
     with open(opt.data) as f:
@@ -258,14 +259,15 @@ def train(hyp, opt, device, tb_writer=None):
                                        pad=0.5, prefix=colorstr('val: '))[0]
 
         if not opt.resume:
+
             labels = np.concatenate(dataset.labels, 0)
             c = torch.tensor(labels[:, 0])  # classes
             # cf = torch.bincount(c.long(), minlength=nc) + 1.  # frequency
             # model._initialize_biases(cf.to(device))
-            if plots:
-                #plot_labels(labels, names, save_dir, loggers)
-                if tb_writer:
-                    tb_writer.add_histogram('classes', c, 0)
+            # if plots:
+            #     # plot_labels(labels, names, save_dir, loggers)
+            #     if tb_writer:
+            #         tb_writer.add_histogram('classes', c, 0)
 
             # Anchors
             if not opt.noautoanchor:
