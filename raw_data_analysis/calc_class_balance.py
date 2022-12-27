@@ -22,7 +22,17 @@ def calc_class_balance(ds_labels_path, graph_title):
     for label_pair in ds_labels_per_file:
         complete_labels += label_pair
 
-    # complete_labels = [int(x) for x in complete_labels]
+    percentage_statistics = {}
+    for val in complete_labels:
+        if val in percentage_statistics:
+            percentage_statistics[val] += 1
+        else:
+            percentage_statistics[val] = 1
+
+    for key in percentage_statistics:
+        percentage_statistics[key] = percentage_statistics[key] / len(complete_labels)
+
+
     class_names = ['Right\nScissors',
                    'Left\nScissors',
                    'Right\nNeedle\ndriver',
@@ -31,34 +41,23 @@ def calc_class_balance(ds_labels_path, graph_title):
                    'Left\nForceps',
                    'Right\nEmpty',
                    'Left\nEmpty']
+    class_names_dict = {idx: x for idx, x in enumerate(class_names)}
+    percentage_statistics_dict = {}
+    for key, value in percentage_statistics.items():
+        percentage_statistics_dict[class_names_dict[int(key)]] = value
 
-    # Set the values to be plotted
+    names = list(percentage_statistics_dict.keys())
+    values = list(percentage_statistics_dict.values())
 
-    # Create the histogram
-    plt.hist(complete_labels)
-
-    # add title
-    plt.title(graph_title)
-
-    # Set the labels for the x-axis tick marks
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7], class_names)
-
-    # Show the plot
-    plt.show()
-
-    plt.hist(complete_labels, weights=np.ones(len(complete_labels)) / len(complete_labels))
-
-    plt.title(f'percentages {graph_title}')
-
-    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7], class_names)
-    plt.show()
-
+    plt.bar(range(len(percentage_statistics_dict)), values, tick_label=names)
+    # plt.show()
+    plt.savefig(fname=f'percentages: {graph_title}')
+    plt.cla()
+    plt.clf()
 
 
 if __name__ == '__main__':
-    general_ds_path = '/home/tomer/PycharmProjects/yolov7/raw_data_ex1'
-    for set_type in ('train', 'validation', 'test'):
+    general_ds_path = '/home/tomer/PycharmProjects/yolov7/raw_data_ex1/oversampled_ds'
+    for set_type in ['train']: #('train', 'validation', 'test'):
         set_ds_path = f'{general_ds_path}/{set_type}/bboxes_labels'
-        calc_class_balance(set_ds_path, f'{set_type} class count')
-        exit()
+        calc_class_balance(set_ds_path, set_type)
