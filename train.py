@@ -49,6 +49,7 @@ def train(hyp, opt, device, tb_writer=None):
     last = wdir / 'last.pt'
     best = wdir / 'best.pt'
     results_file = save_dir / 'results.txt'
+    custom_results = save_dir / 'custom_results.txt'
 
     # Save run settings
     with open(save_dir / 'hyp.yaml', 'w') as f:
@@ -430,6 +431,20 @@ def train(hyp, opt, device, tb_writer=None):
 
             # Write
             with open(results_file, 'a') as f:
+                f.write(s + '%10.4g' * 7 % results + '\n')  # append metrics, val_loss
+
+            print(s)
+            print(results)
+            exit()
+            # s - (epoch, epochs - 1), mem, *mloss, targets.shape[0], imgs.shape[-1])
+            # results:
+            # mp - precision mean
+            # mr - reacall mean
+            # 2. map - mAP@0.5
+            # 3.map50 = mAP@0.5:0.95
+            # 4- 7 model loss
+
+            with open(custom_results, 'a') as f:
                 f.write(s + '%10.4g' * 7 % results + '\n')  # append metrics, val_loss
             if len(opt.name) and opt.bucket:
                 os.system('gsutil cp %s gs://%s/results/results%s.txt' % (results_file, opt.bucket, opt.name))
