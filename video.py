@@ -19,7 +19,6 @@ import glob
 import os
 
 
-
 def text_update(frame, left_labels_list, right_labels_list):
     left_label = ''
     right_label = ''
@@ -41,7 +40,7 @@ def dynamic_labels(src):
                   "T3": "scissors"}
     # for video in glob.glob("/home/roi/PycharmProjects/yolov7/computer-vision-ex1-3/videos/P023_tissue2.wmv"): #multi video version
     for video in [src]:
-        frames=[]
+        frames = []
         text_labels = str(os.path.basename(video)[:-4]) + ".txt"
         left_labels_list = list(open("computer-vision-ex1-3/tool_usage/tools_left/" + text_labels))
         right_labels_list = list(open("computer-vision-ex1-3/tool_usage/tools_right/" + text_labels))
@@ -70,8 +69,8 @@ def dynamic_labels(src):
             out.write(frame)
             frames.append(frame)
             frame_ = frame_ + 1
-
-            # smooth_labels(frames)
+            # if len(frames) > 9:
+            #     smooth_labels(frames[-8:])
             try:
                 cv2.imshow(str(os.path.basename(video[:-4])), frame)
 
@@ -88,11 +87,6 @@ def dynamic_labels(src):
 
 def smooth_labels(frames, alpha=0.9):
     """Smooth the labels for the given frames using an exponential moving average.
-    Args:
-        frames (List[List[str]]): A list of lists of labels, where each list of labels corresponds to a single frame.
-        alpha (float): The smoothing factor.
-    Returns:
-        List[List[str]]: A list of lists of smoothed labels.
     """
     # Initialize the list of smoothed labels with the labels for the first frame
     smoothed_labels = [frames[0]]
@@ -268,7 +262,7 @@ def detect_video(save_video=False, opt=None):
         # print(f"Results saved to {save_dir}{s}")
 
     print(f'Done. ({time.time() - t0:.3f}s)')
-    return  str(save_dir /  os.path.basename(opt.source))
+    return str(save_dir / os.path.basename(opt.source))
 
 
 def main():
@@ -296,20 +290,16 @@ def main():
     opt = parser.parse_args()
     print(opt)
     # check_requirements(exclude=('pycocotools', 'thop'))
-    video_with_bboxes_src=''
+    video_with_bboxes_src = ''
     with torch.no_grad():
         if opt.update:  # update all models (to fix SourceChangeWarning)
             for opt.weights in ['yolov7.pt']:
-                video_with_bboxes_src= detect_video(True, opt)
+                video_with_bboxes_src = detect_video(True, opt)
                 strip_optimizer(opt.weights)
         else:
-            video_with_bboxes_src= detect_video(True, opt)
+            video_with_bboxes_src = detect_video(True, opt)
     # video_with_bboxes_src= "runs/detect/exp2/test.wmv"
     dynamic_labels(video_with_bboxes_src)
-
-
-
-
 
 
 if __name__ == '__main__':
