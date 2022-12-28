@@ -41,6 +41,7 @@ def dynamic_labels(src):
                   "T3": "scissors"}
     # for video in glob.glob("/home/roi/PycharmProjects/yolov7/computer-vision-ex1-3/videos/P023_tissue2.wmv"): #multi video version
     for video in [src]:
+        frames=[]
         text_labels = str(os.path.basename(video)[:-4]) + ".txt"
         left_labels_list = list(open("computer-vision-ex1-3/tool_usage/tools_left/" + text_labels))
         right_labels_list = list(open("computer-vision-ex1-3/tool_usage/tools_right/" + text_labels))
@@ -67,8 +68,10 @@ def dynamic_labels(src):
 
             # write the flipped frame
             out.write(frame)
-
+            frames.append(frame)
             frame_ = frame_ + 1
+
+            # smooth_labels(frames)
             try:
                 cv2.imshow(str(os.path.basename(video[:-4])), frame)
 
@@ -82,6 +85,40 @@ def dynamic_labels(src):
         out.release()
         cv2.destroyAllWindows()
 
+
+def smooth_labels(frames, alpha=0.9):
+    """Smooth the labels for the given frames using an exponential moving average.
+    Args:
+        frames (List[List[str]]): A list of lists of labels, where each list of labels corresponds to a single frame.
+        alpha (float): The smoothing factor.
+    Returns:
+        List[List[str]]: A list of lists of smoothed labels.
+    """
+    # Initialize the list of smoothed labels with the labels for the first frame
+    smoothed_labels = [frames[0]]
+
+    # Iterate over the rest of the frames
+    for i in range(1, len(frames)):
+        # Initialize the list of smoothed labels for the current frame
+        smoothed_frame_labels = []
+
+        # Iterate over the labels for the current frame
+        for label in frames[i]:
+            # If the label is not in the list of smoothed labels for the previous frame, add it
+            if label not in smoothed_labels[-1]:
+                smoothed_frame_labels.append(label)
+            else:
+                # Find the index of the label in the list of smoothed labels for the previous frame
+                index = smoothed_labels[-1].index(label)
+                # Compute the smoothed label using an exponential moving average
+                smoothed_label = alpha * label + (1 - alpha) * smoothed_labels[-1][index]
+                # Add the smoothed label to the list of smoothed labels for the current frame
+                smoothed_frame_labels.append(smoothed_label)
+
+        # Add the list of smoothed labels for the current frame to the list of smoothed labels
+        smoothed_labels.append(smoothed_frame_labels)
+
+    return smoothed_labels
 
 
 def detect_video(save_video=False, opt=None):
